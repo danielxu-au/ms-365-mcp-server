@@ -172,6 +172,41 @@ Or configure Claude Desktop manually:
 
 > **Note**: Run `npm run build` after code changes to update the `dist/` folder.
 
+### Docker
+
+You can build and run the server in Docker using the provided Dockerfile. The image enables work/organization
+scopes by default through `MS365_MCP_ORG_MODE=1` and keeps the standard stdio transport so no app registration or
+client secret is required.
+
+```bash
+docker build -t ms365-mcp:local .
+```
+
+> The build process downloads the latest Microsoft Graph OpenAPI description, so ensure the builder has
+> outbound network access.
+
+Delegate authentication requires a one-time device-code login. Mount a cache directory to persist the token cache
+between runs:
+
+```bash
+mkdir -p ~/.ms365-mcp-cache
+docker run --rm -it \
+  -v ~/.ms365-mcp-cache:/app/cache \
+  ms365-mcp:local --login
+```
+
+Subsequent runs reuse the cached credentials:
+
+```bash
+docker run --rm -i \
+  -v ~/.ms365-mcp-cache:/app/cache \
+  ms365-mcp:local
+```
+
+- Pass additional flags (for example `--enabled-tools` or `--read-only`) after the image name and they will be
+  forwarded to `node dist/index.js`.
+- Override the cache path with `MS365_MCP_CACHE_DIR` if you want to store credentials somewhere other than `/app/cache`.
+
 ### Authentication
 
 > ⚠️ You must authenticate before using tools.
@@ -302,6 +337,7 @@ Environment variables:
 - `MS365_MCP_CLIENT_ID`: Custom Azure app client ID (defaults to built-in app)
 - `MS365_MCP_TENANT_ID`: Custom tenant ID (defaults to 'common' for multi-tenant)
 - `MS365_MCP_OAUTH_TOKEN`: Pre-existing OAuth token for Microsoft Graph API (BYOT method)
+- `MS365_MCP_CACHE_DIR`: Directory used for storing the local token cache when the OS keychain is unavailable
 
 ## Contributing
 

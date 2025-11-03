@@ -25,8 +25,8 @@ export function generateMcpTools(openApiSpec, outputDir) {
 
     console.log(`Generated client code at: ${clientFilePath}`);
 
-    let clientCode = fs.readFileSync(clientFilePath, 'utf-8');
-    clientCode = clientCode.replace(/'@zodios\/core';/, "'./hack.js';");
+  let clientCode = fs.readFileSync(clientFilePath, 'utf-8');
+  clientCode = clientCode.replace(/from ['\"]@zodios\/core['\"]/g, "from './hack.js'");
     fs.writeFileSync(clientFilePath, clientCode);
 
     return true;

@@ -1,7 +1,23 @@
 import { defineConfig } from 'tsup';
 
 export default defineConfig({
-  entry: ['src/**/*.ts', 'src/endpoints.json'],
+  entry: [
+    'src/index.ts',
+    'src/server.ts',
+    'src/auth.ts',
+    'src/auth-tools.ts',
+    'src/graph-client.ts',
+    'src/graph-tools.ts',
+    'src/cli.ts',
+    'src/logger.ts',
+    'src/oauth-provider.ts',
+    'src/version.ts',
+    'src/generated/hack.ts',
+    'src/generated/endpoint-types.ts',
+    'src/generated/client.ts',
+    'src/lib/microsoft-auth.ts',
+    'src/endpoints.json',
+  ],
   format: ['esm'],
   target: 'es2020',
   outDir: 'dist',

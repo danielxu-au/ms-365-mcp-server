@@ -28,8 +28,18 @@ const SERVICE_NAME = 'ms-365-mcp-server';
 const TOKEN_CACHE_ACCOUNT = 'msal-token-cache';
 const SELECTED_ACCOUNT_KEY = 'selected-account';
 const FALLBACK_DIR = path.dirname(fileURLToPath(import.meta.url));
-const FALLBACK_PATH = path.join(FALLBACK_DIR, '..', '.token-cache.json');
-const SELECTED_ACCOUNT_PATH = path.join(FALLBACK_DIR, '..', '.selected-account.json');
+
+function resolveCacheDir(): string {
+  const envDir = process.env.MS365_MCP_CACHE_DIR;
+  if (envDir && envDir.trim().length > 0) {
+    return path.isAbsolute(envDir) ? envDir : path.join(process.cwd(), envDir);
+  }
+  return path.join(FALLBACK_DIR, '..');
+}
+
+const CACHE_DIR = resolveCacheDir();
+const FALLBACK_PATH = path.join(CACHE_DIR, '.token-cache.json');
+const SELECTED_ACCOUNT_PATH = path.join(CACHE_DIR, '.selected-account.json');
 
 const DEFAULT_CONFIG: Configuration = {
   auth: {
@@ -186,6 +196,7 @@ class AuthManager {
           `Keychain save failed, falling back to file storage: ${(keytarError as Error).message}`
         );
 
+        fs.mkdirSync(path.dirname(FALLBACK_PATH), { recursive: true });
         fs.writeFileSync(FALLBACK_PATH, cacheData);
       }
     } catch (error) {
@@ -204,6 +215,7 @@ class AuthManager {
           `Keychain save failed for selected account, falling back to file storage: ${(keytarError as Error).message}`
         );
 
+        fs.mkdirSync(path.dirname(SELECTED_ACCOUNT_PATH), { recursive: true });
         fs.writeFileSync(SELECTED_ACCOUNT_PATH, selectedAccountData);
       }
     } catch (error) {
